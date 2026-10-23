@@ -1,0 +1,122 @@
+OsuProofs.osu_eval_refines : OsuProofs.js_EvalOpen →
+  ∀ (e : OsuImpl.sim.geometry.Env),
+    OsuImpl.eval.env.default_env = Aeneas.Std.Result.ok e →
+      ∀ (bm osr : Aeneas.Std.Slice Aeneas.Std.U8),
+        OsuProofs.InputBounds bm osr →
+          ∀ (opts : OsuImpl.eval.Options),
+            (∀ (ov : Aeneas.Std.alloc.vec.Vec OsuImpl.beatmap.mod_settings.ModConfig),
+                opts.mods_override = some ov → (∀ m ∈ ↑ov, OsuProofs.ev_mcOk m) ∧ (↑ov).length < 2 ^ 61) →
+              OsuProofs.PlayableBounds bm osr opts →
+                ∀ (sched : OsuImpl.eval.Schedule),
+                  (∀ (refs : Aeneas.Std.alloc.vec.Vec float.F64),
+                      sched = OsuImpl.eval.Schedule.Explicit refs → (↑refs).length * 100000000 + 4 < 2 ^ 61) →
+                    OsuProofs.RunBudgetIn OsuModel.Eval.defaultEnv bm osr opts sched →
+                      ∃ r,
+                        OsuImpl.eval.evaluate e bm osr opts sched = Aeneas.Std.Result.ok r ∧
+                          OsuProofs.ev_topRel r
+                            (OsuModel.Eval.evaluate OsuModel.Eval.defaultEnv (OsuProofs.bytesS bm)
+                              (OsuProofs.bytesS osr) (OsuProofs.ev_optsS opts) (OsuProofs.ev_schedS sched))
+OsuProofs.AbsTo inductive 2301245127 9527841821163135556
+OsuProofs.AbsTo.abs def 3611717949 25659284
+OsuProofs.AbsTo.mk ctor 3905458621 0
+OsuProofs.GenOk def 706304839 3155230512
+OsuProofs.GenPB def 4282910919 3134510238
+OsuProofs.GpbBounds inductive 187593080 13656425890107226158
+OsuProofs.InputBounds inductive 2686901611 9255389533241652154
+OsuProofs.KeysOk def 3683561222 251429105
+OsuProofs.MsOk def 2324810845 2864788888
+OsuProofs.PathsOk def 706304839 158264280
+OsuProofs.PlayableBounds inductive 1754305890 12573708137480689031
+OsuProofs.ReflOk def 706304839 3247791138
+OsuProofs.RunBudgetIn def 3737575334 2180111173
+OsuProofs.RunBudgetS def 3516391186 1327603233
+OsuProofs.StOk def 706304839 2915713552
+OsuProofs.VValid def 791713204 1108975291
+OsuProofs.bytesS def 987874810 3298594649
+OsuProofs.chOf def 431246666 2531204305
+OsuProofs.dec_pathOk def 1379455552 3478076363
+OsuProofs.e2AccBudS def 2526420824 2733631537
+OsuProofs.evS_beatmap def 2816979811 2206498118
+OsuProofs.evS_beatmap.match_1 def 824143991 2243025613
+OsuProofs.evS_frames def 3044236415 3489307127
+OsuProofs.evS_frames.match_1 def 3603163513 1348254134
+OsuProofs.evS_gameplay def 1237964639 1583092877
+OsuProofs.evS_gameplay.match_1 def 2804009800 3976187620
+OsuProofs.evS_sched def 2385230303 2561280529
+OsuProofs.evS_sched.match_1 def 3059741635 2952590669
+OsuProofs.evS_sched0 def 2385230303 576448862
+OsuProofs.evS_sched0.match_1 def 1293250595 815912939
+OsuProofs.evS_sched0.match_3 def 345693179 1074178409
+OsuProofs.evS_sched0.match_5 def 2762588290 2576716181
+OsuProofs.evS_sched0.match_7 def 2652931452 739259490
+OsuProofs.evS_sched0.match_9 def 674024392 175833817
+OsuProofs.ev_kindS def 1108417681 2528408342
+OsuProofs.ev_kindS.match_1 def 1433701091 3101324578
+OsuProofs.ev_lzmaBound def 3944470172 3569403802
+OsuProofs.ev_mcOk def 2008738529 280107227
+OsuProofs.ev_mkBoundsS def 702925896 3749616266
+OsuProofs.ev_optsS def 2518722701 695750662
+OsuProofs.ev_resS def 2416906161 4116336937
+OsuProofs.ev_schedName def 1957127032 1541943145
+OsuProofs.ev_schedName.match_1 def 731198903 320810385
+OsuProofs.ev_schedS def 85652960 4138378415
+OsuProofs.ev_schedS.match_1 def 3053178067 761445597
+OsuProofs.ev_semS def 2595585247 1181157910
+OsuProofs.ev_simCtxOf def 406662030 2839874376
+OsuProofs.ev_stageS def 1043278382 1928360705
+OsuProofs.ev_stageS.match_1 def 1071128232 2925312877
+OsuProofs.ev_tn def 2536000210 500329151
+OsuProofs.ev_tn.match_1 def 1497732173 72630162
+OsuProofs.ev_topRel def 2342337538 1948075401
+OsuProofs.ev_topRel._sparseCasesOn_1 def 1951381522 338443418
+OsuProofs.ev_topRel._sparseCasesOn_2 def 3710000950 1393105296
+OsuProofs.ev_topRel.match_1 def 1622828907 4274066829
+OsuProofs.genMapPos def 2827403560 1863862912
+OsuProofs.gpbAC def 4095464143 3958815212
+OsuProofs.gpbAC.match_1 def 3614473255 4144492430
+OsuProofs.gpbATB def 3621517803 377236813
+OsuProofs.gpbATB._f def 1503256664 252008184
+OsuProofs.gpbATB.match_1 def 3111701947 3092059032
+OsuProofs.gpbB2 def 3337639766 2440899745
+OsuProofs.gpbB5 def 2075933804 1550507214
+OsuProofs.gpbDiff def 4095464143 657198790
+OsuProofs.gpbDiff.match_1 def 1085903845 1392800942
+OsuProofs.gpbHO def 2716018557 2021020049
+OsuProofs.gpbHO.match_1 def 487169510 539586130
+OsuProofs.gpbHos def 3318820924 3175357930
+OsuProofs.hrS def 1117361305 1800474683
+OsuProofs.hrS.match_1 def 2698209593 3295605038
+OsuProofs.i32S def 2055499690 1515891353
+OsuProofs.instAbsToHealthStHealthSt def 3771524016 4233009258
+OsuProofs.instAbsToU64Nat def 2035003633 2743158278
+OsuProofs.instAbsToVecArray def 3132543922 1376529754
+OsuProofs.jrecS def 448118356 1357538881
+OsuProofs.js_EvalOpen inductive 3944470172 7536107195755975978
+OsuProofs.keyName def 2536000210 3263502548
+OsuProofs.keyNames def 4017531403 633533375
+OsuProofs.kindS def 4040388528 1474935613
+OsuProofs.kindS.match_1 def 1611793554 2684947149
+OsuProofs.mcS def 1407617311 1121580259
+OsuProofs.msCps def 2827403560 1241331021
+OsuProofs.msSpec def 3425566411 308743758
+OsuProofs.pmS def 3397750004 2001056587
+OsuProofs.pmS.match_1 def 195754218 1242311144
+OsuProofs.rankS def 149720869 2779231728
+OsuProofs.rankS.match_1 def 3512160497 1038098849
+OsuProofs.runBudgetNeed def 4015823865 3906700373
+OsuProofs.sc2CsCostS def 1795450882 3051735088
+OsuProofs.sc2PreDho def 2098124558 2293638789
+OsuProofs.sc2UnitsRun def 2313038387 3011128343
+OsuProofs.sc2UnitsRun._f def 1342026804 2120149219
+OsuProofs.sc2UnitsRun.match_1 def 512850624 4102202268
+OsuProofs.sc2UnitsRun.match_3 def 369025629 2180769404
+OsuProofs.sc2UnitsRun.match_5 def 530932011 2996450376
+OsuProofs.sc2VmCostS def 78532212 962841967
+OsuProofs.sc2VmCostS.match_1 def 3254038168 94755561
+OsuProofs.scoreS def 447882246 650361504
+OsuProofs.statsS def 1414309548 2336084962
+OsuProofs.svS def 1778735470 2085186592
+OsuProofs.svS.match_1 def 573210640 1112619889
+OsuProofs.valsS def 2508797129 1113929928
+OsuProofs.vstrS def 3576976280 1565353504
+%%headline closure: 103 proof-local constants

@@ -1,0 +1,31 @@
+dbl-invtrig: glibc 2.39 asin/acos (e_asin.c), atan (s_atan.c), atan2 (e_atan2.c)
+Reproduces: Ubuntu 2.39-0ubuntu8.x x86-64 libm.so.6 on an FMA+AVX2 CPU, i.e. the ifunc picks
+  __ieee754_asin_fma / __ieee754_acos_fma / __atan_fma / __ieee754_atan2_fma
+  (sysdeps/x86_64/fpu/multiarch/{e_asin,s_atan,e_atan2}-fma.c, built with -mfma -mavx2, GCC default
+  -ffp-contract=fast), plus the w_asin_compat/w_acos_compat wrappers (|x|>1 -> +NaN).
+
+Required flags (informational; the lead's build.rs uses its fixed set):
+  -O2 -std=gnu11 -ffp-contract=off -fno-fast-math -fno-builtin -fno-strict-aliasing -I<this dir>
+  No -mfma/-march needed: every multiply-add that GCC 13.3 contracts in the glibc FMA build is an explicit
+  __builtin_fma ("lp: fma" comments); EMULV/DLA_FMS in dla.h is always the fused form.
+  -ffp-contract=off is REQUIRED (any further contraction changes results). Without hardware FMA,
+  __builtin_fma becomes a call to the platform's fma(), which must be correctly rounded (glibc, macOS libm are).
+  Assumes round-to-nearest; FP exception flags/errno are not reproduced.
+
+How the contractions were found: gcc 13.3 -O2 -mfma -mavx2 -frounding-math -ffp-contract=fast
+  -fdump-tree-widening_mul-details on the unmodified sources; the rewritten sources built with
+  -ffp-contract=off -mfma -mavx2 give the same number of vfmadd/vfmsub/vfnmadd instructions
+  (asin+acos 121, atan 28, atan2 47; asm differs only in scheduling/register allocation).
+
+Smoke validation (test/smoke.c vs the VM's libm.so.6, bitwise incl. NaN bits; 1e7 inputs per
+distribution: asin/acos 4e7 each, atan 4e7, atan2 6e7, plus special values / special pairs):
+  gcc 13.3   fixed flags (no -mfma)      0 mismatches
+  gcc 13.3   fixed flags + -mfma -mavx2  0
+  clang 18   fixed flags (no -mfma)      0
+  clang 18   fixed flags + -mfma         0
+  (control: the unmodified sources without FMA give ~100k mismatches on 1e5 inputs, so the test discriminates)
+
+aarch64 / macOS (UNVALIDATED, compile-only): clang --target=aarch64-apple-darwin and x86_64-apple-darwin
+  compile cleanly with the fixed flags; on aarch64 every __builtin_fma is an inline fmadd/fmsub/fnmsub
+  (clang folds fma(a, 2.0, c) into an add, which is exact). NaN propagation is written so that it does not
+  depend on operand order (atan2's NaN branch spells out glibc's x86 result).

@@ -1,0 +1,16 @@
+[package]
+name = "osu_eval_core"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+# D86: vendored glibc 2.39 libm (23 functions) / liblzma 5.4.5 decoder, statically linked instead of dlopen.
+# Always used when the target OS is not Linux (build.rs); on Linux opt-in with these features.
+[features]
+vendored-libm = []
+vendored-lzma = []
+vendored = ["vendored-libm", "vendored-lzma"]
+# D86 validation only: compare every libm call with the dlopen'd glibc (float.rs `verify`)
+verify-libm = ["vendored-libm"]

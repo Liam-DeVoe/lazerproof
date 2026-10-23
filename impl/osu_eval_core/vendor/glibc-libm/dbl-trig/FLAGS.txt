@@ -1,0 +1,29 @@
+dbl-trig compile flags (informational; the sources are correct under the fixed build.rs flags)
+
+Required / validated:
+  -O2 -std=gnu11 -ffp-contract=off -fno-fast-math -fno-builtin -fno-strict-aliasing -fvisibility=hidden -w -fPIC -I<dir>
+  No defines. -ffp-contract=off is REQUIRED: every multiply-add that GCC 13 contracts in glibc's
+  x86-64 _fma build (from -fdump-tree-widening_mul on the original s_sin.c/s_tan.c under
+  -O2 -mfma -mavx2) is written out as __builtin_fma (LP_FMA in lp_trig_shim.h, DLA_FMS/DIV2 in dla.h).
+  Any additional contraction would change results. branred.c is the glibc baseline (non-FMA) build
+  and contains no fma.
+  Optional: -mfma (x86-64) makes __builtin_fma an instruction. Without it, x86-64 calls libm fma(),
+  which is correctly rounded, so the result is identical but slower. On aarch64 __builtin_fma is always fmadd.
+
+glibc's own build of the variant this VM uses (for reference): -O2 -mfma -mavx2 -frounding-math
+  -fno-math-errno, GCC default -ffp-contract=fast (s_sin-fma.c, s_tan-fma.c); branred.c without -mfma.
+
+Smoke test (test/smoke.c, vs this VM's libm.so.6 via dlsym, bitwise, 22.5M inputs each:
+  1e7 uniform bit patterns + 1e7 uniform [-10,10] + 2.5e6 log-uniform |x| in [2^-30,2^40] + specials):
+  gcc 13.3   fixed flags            : 0 mismatches sin/cos/tan
+  gcc 13.3   fixed flags -mfma -mavx2: 0
+  clang 18   fixed flags            : 0
+  clang 18   fixed flags -mfma -mavx2: 0
+  Sensitivity check: the same sources with LP_FMA as plain a*b+c give about 1e3 sin/cos and 1e4 tan mismatches per 2.25M inputs.
+  build: cc <flags> -c {s_sin,s_tan,branred,sincostab}.c; cc -O2 test/smoke.c *.o -ldl -lm; ./a.out [N]
+
+UNVALIDATED: aarch64 (Apple clang / Xcode) and macOS x86-64. The code depends only on IEEE binary64 arithmetic
+  in round-to-nearest, a correctly rounded __builtin_fma, and no contraction (-ffp-contract=off; Apple clang
+  defaults to contraction "on", so the flag is essential). The byte order comes from __BYTE_ORDER__.
+  Dropped from glibc (result-neutral): SET_RESTORE_ROUND_53BIT (assumes the caller runs in round-to-nearest),
+  errno=EDOM, forced-underflow flag raising.

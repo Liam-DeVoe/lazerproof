@@ -1,0 +1,21 @@
+name = "OsuProofs"
+version = "0.1.0"
+defaultTargets = ["OsuProofs"]
+
+# Aeneas Lean backend from the prebuilt release bundle (docs/proof-poc.md).
+[[require]]
+name = "aeneas"
+path = "/home/exedev/tools/aeneas/backends/lean"
+
+# The spec (no Mathlib inside it).
+[[require]]
+name = "OsuModel"
+path = "../model"
+
+[[lean_lib]]
+name = "OsuProofs"
+
+# Differential checker (spec only, no Aeneas import): impl/osu_eval_bench gen | pocspec
+[[lean_exe]]
+name = "pocspec"
+root = "PocSpec.Main"

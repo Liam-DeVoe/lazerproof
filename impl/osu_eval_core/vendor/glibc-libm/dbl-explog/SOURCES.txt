@@ -1,0 +1,10 @@
+# glibc 2.39 dbl-64 exp/log/log10/pow/cbrt/fmod (FMA ifunc variants for exp/log/pow); see FLAGS.txt
+e_exp.c
+e_exp_data.c
+e_log.c
+e_log_data.c
+e_log10.c
+e_pow.c
+e_pow_log_data.c
+s_cbrt.c
+e_fmod.c

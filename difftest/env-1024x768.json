@@ -1,0 +1,1213 @@
+{
+ "format": "env-1",
+ "description": "oracle environment (D10): 1024x768 window, UI scale 1, default config, argon skin. HitObjectContainer DrawInfo (screen<->gamefield) from oracle --dump-env; history[0] = matrices used in the first frame-stable step. hoc_chain(_first): the HitObjectContainer ancestor chain (computeDrawInfo inputs, root first) from ORACLE_DHO_STATES=1 --dump-env (BarrelRoll recomposes it).",
+ "hit_object_container_matrix": [
+  "0x3fcccccd",
+  "0x00000000",
+  "0x00000000",
+  "0x00000000",
+  "0x3fcccccd",
+  "0x00000000",
+  "0x42cccccc",
+  "0x42b33334",
+  "0x3f800000"
+ ],
+ "hit_object_container_inverse": [
+  "0x3f200000",
+  "0x00000000",
+  "0x00000000",
+  "0x00000000",
+  "0x3f200000",
+  "0x00000000",
+  "0xc2800000",
+  "0xc2600004",
+  "0x3f800000"
+ ],
+ "hit_object_container_history": [
+  {
+   "matrix": [
+    "0x3f800000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x3f800000",
+    "0x00000000",
+    "0x42cccccc",
+    "0x4299999c",
+    "0x3f800000"
+   ],
+   "inverse": [
+    "0x3f800000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x3f800000",
+    "0x00000000",
+    "0xc2cccccc",
+    "0xc299999c",
+    "0x3f800000"
+   ]
+  }
+ ],
+ "argon_path_radius": "0x425cb08d",
+ "hit_object_container_draw_size": [
+  "0x44000000",
+  "0x43bfffff"
+ ],
+ "hoc_chain_first": [
+  {
+   "type": "OsuUserInputManager",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "PlatformActionContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "FrameworkActionContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "SafeAreaDefiningContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "OracleGame",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "Container",
+   "pos": [
+    "0x44000000",
+    "0x43c00000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x44000000",
+    "0x43c00000"
+   ]
+  },
+  {
+   "type": "SafeAreaContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "ScalingContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "SizeableAlwaysInputContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "ScalingDrawSizePreservingFillContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "Container",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "GlobalActionContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "GlobalCursorDisplay",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "Container",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "OsuTooltipContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "Container",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "OracleGameplay",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "RulesetSkinProvidingContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "BeatmapSkinProvidingContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "Container",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "ScalingContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "SizeableAlwaysInputContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "ScalingDrawSizePreservingFillContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "Container",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "DrawableOsuRuleset",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "FrameStabilityContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "AudioContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "Container`1",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "OsuInputManager",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "OsuKeyBindingContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "Container",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "OsuPlayfieldAdjustmentContainer",
+   "pos": [
+    "0x44000000",
+    "0x43c00000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x43cccccd",
+    "0x4399999a"
+   ]
+  },
+  {
+   "type": "Container",
+   "pos": [
+    "0x43cccccd",
+    "0x4399999a"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x43cccccd",
+    "0x43999999"
+   ]
+  },
+  {
+   "type": "ScalingContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "OsuPlayfield",
+   "pos": [
+    "0x43cccccd",
+    "0x43999999"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x43cccccd",
+    "0x43999999"
+   ]
+  },
+  {
+   "type": "HitObjectContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  }
+ ],
+ "hoc_chain": [
+  {
+   "type": "OsuUserInputManager",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "PlatformActionContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "FrameworkActionContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "SafeAreaDefiningContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "OracleGame",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "Container",
+   "pos": [
+    "0x44000000",
+    "0x43c00000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x44000000",
+    "0x43c00000"
+   ]
+  },
+  {
+   "type": "SafeAreaContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "ScalingContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "SizeableAlwaysInputContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "ScalingDrawSizePreservingFillContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "Container",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "GlobalActionContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "GlobalCursorDisplay",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "Container",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "OsuTooltipContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "Container",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "OracleGameplay",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "RulesetSkinProvidingContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "BeatmapSkinProvidingContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "Container",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "ScalingContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "SizeableAlwaysInputContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "ScalingDrawSizePreservingFillContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "Container",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "DrawableOsuRuleset",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "FrameStabilityContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "AudioContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "Container`1",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "OsuInputManager",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "OsuKeyBindingContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "Container",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "OsuPlayfieldAdjustmentContainer",
+   "pos": [
+    "0x44000000",
+    "0x43c00000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x43cccccd",
+    "0x4399999a"
+   ]
+  },
+  {
+   "type": "Container",
+   "pos": [
+    "0x43cccccd",
+    "0x4399999a"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x43cccccd",
+    "0x43999999"
+   ]
+  },
+  {
+   "type": "ScalingContainer",
+   "pos": [
+    "0x00000000",
+    "0x414ccccd"
+   ],
+   "scale": [
+    "0x3fcccccd",
+    "0x3fcccccd"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  },
+  {
+   "type": "OsuPlayfield",
+   "pos": [
+    "0x43800000",
+    "0x433fffff"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x43800000",
+    "0x433fffff"
+   ]
+  },
+  {
+   "type": "HitObjectContainer",
+   "pos": [
+    "0x00000000",
+    "0x00000000"
+   ],
+   "scale": [
+    "0x3f800000",
+    "0x3f800000"
+   ],
+   "rotation": "0x00000000",
+   "origin": [
+    "0x00000000",
+    "0x00000000"
+   ]
+  }
+ ]
+}

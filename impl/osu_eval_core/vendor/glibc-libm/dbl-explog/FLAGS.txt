@@ -1,0 +1,57 @@
+dbl-explog: glibc 2.39 (Ubuntu 2.39-0ubuntu8.9; no Ubuntu patch touches these files)
+sysdeps/ieee754/dbl-64 exp, log, log10, pow, cbrt, fmod. Exports: lp_exp lp_log lp_log10
+lp_pow lp_cbrt lp_fmod (plain C ABI). Other globals: lp_explog_{exp,log,pow_log}_data.
+External reference: fma (see below). Everything else is static.
+
+REQUIRED FLAGS (the build.rs interface; the sources are correct under exactly these):
+  -O2 -std=gnu11 -ffp-contract=off -fno-fast-math -fno-builtin -fno-strict-aliasing
+  -fvisibility=hidden -w -fPIC -I<dir>
+-ffp-contract=off is REQUIRED: every contraction is written out explicitly (below).
+No -mfma/-march is needed. Adding -mfma -mavx2 is allowed and gives the same bits
+(validated below); it only turns the fma calls into vfmadd instructions.
+
+WHICH GLIBC VARIANT IS REPRODUCED (x86-64 VM, CPU has FMA+AVX2)
+- exp, log, pow: the ifunc picks __ieee754_{exp,log,pow}_fma (sysdeps/x86_64/fpu/multiarch/
+  e_{exp,log,pow}-fma.c, built with -mfma -mavx2 and GCC's default -ffp-contract=fast).
+  * __FP_FAST_FMA paths of e_log.c / e_pow.c are always taken (`#if 1`); e_log_data.c tab2
+    (non-FMA only) is dropped.
+  * Every multiply-add that GCC 13 contracts in those builds is written as
+    LP_FMA(a,b,c) = __builtin_fma(a,b,c). The contraction list was taken from
+    `gcc -O2 -mfma -mavx2 -ffp-contract=fast -fdump-tree-widening_mul-details` ("Generated
+    FMA") on the unmodified sources. Check: vfmadd/vfmsub/vfnmadd counts in objdump are
+    equal for the original (-ffp-contract=fast -mfma) and the rewritten (-ffp-contract=off
+    -mfma) objects, with gcc and clang: exp 9/9/9, log 23/23/23, pow 21/21/21.
+  * Without -mfma, __builtin_fma compiles to a call to the C library's fma(). That must be
+    a correctly rounded fma (glibc yes; macOS libm yes). On aarch64 fma is an instruction
+    (fmadd) at the baseline, so no call is emitted.
+- log10, cbrt, fmod: generic (baseline SSE2) builds, no contraction -> -ffp-contract=off.
+  * log10: the exported symbol is log10@GLIBC_2.2.5 = math/w_log10_compat.c with
+    _LIB_VERSION == _POSIX_: log10(+-0) = -inf, log10(x<0) = +NaN 0x7ff8000000000000
+    (__kernel_standard 18/19), else __ieee754_log10, which calls the FMA log (lp_log).
+  * cbrt: __frexp / __ldexp(__scalbn) copied as static helpers from dbl-64.
+  * fmod: the GLIBC_2.38 e_fmod.c (integer algorithm, no FP arithmetic except NaNs).
+- TOINT_INTRINSICS = 0 (as on x86-64): exp/pow use the Shift trick, kd = fma(InvLn2N, x,
+  Shift) (z + Shift contracted). math_narrow_eval is the identity (FLT_EVAL_METHOD 0).
+- WANT_ROUNDING = 1, WANT_ERRNO = 1 (same branches as glibc), but errno is never set and
+  FP exception side effects are not guaranteed. Barriers are volatile, no asm.
+
+NaN BITS (made target-independent, value-identical to x86-64 SSE):
+  glibc's (x-x)/(x-x) etc. produce the x86 default NaN 0xfff8000000000000; aarch64's default
+  NaN is 0x7ff8000000000000, and aarch64 gives SNaN operands precedence where x86 takes the
+  first operand. So: __math_invalid -> quiet(x) if NaN else 0xfff8000000000000;
+  pow's `x + y` and fmod's `x * y` NaN returns -> lp_nan2(x,y) = quiet(first NaN of x,y);
+  fmod's (x*y)/(x*y) -> 0xfff8000000000000. Single-NaN operations (x + x, 1.0 + x, -x)
+  quiet and keep the payload on both targets.
+
+VALIDATION (test/smoke.c vs dlsym(libm.so.6) on this VM, bitwise incl. NaN payload/sign):
+  gcc 13.3 required flags:          1e7 + 1e8 per function, 0 mismatches
+  clang 18 required flags:          1e7 + 1e8 per function, 0 mismatches
+  gcc / clang required + -mfma -mavx2: 1e7 per function, 0 mismatches
+  Build: gcc|clang <required flags> -c *.c (SOURCES.txt); cc -O2 -I. test/smoke.c *.o -ldl -lm
+  Run:   smoke [N per function] [seed]
+
+UNVALIDATED: aarch64 (Apple Silicon, Linux arm64) and macOS clang (Apple clang).
+  Expected to match because: no FLT_EVAL_METHOD != 0, no contraction (-ffp-contract=off,
+  explicit fma), NaN rules explicit, only IEEE double + - * / and fma, integer ops
+  well-defined (no signed overflow / UB relied on beyond what glibc relies on:
+  arithmetic right shift of int64_t, which clang/gcc define). Not yet run there.

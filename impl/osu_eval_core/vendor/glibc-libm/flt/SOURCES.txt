@@ -1,0 +1,17 @@
+# glibc 2.39 sysdeps/ieee754/flt-32 (float sinf cosf tanf asinf acosf atanf expf logf atan2f powf), see FLAGS.txt
+e_acosf.c
+e_asinf.c
+e_atan2f.c
+e_exp2f_data.c
+e_expf.c
+e_logf.c
+e_logf_data.c
+e_powf.c
+e_powf_log2_data.c
+k_tanf.c
+math_errf.c
+s_atanf.c
+s_cosf.c
+s_sincosf_data.c
+s_sinf.c
+s_tanf.c

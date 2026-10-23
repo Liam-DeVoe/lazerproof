@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>14.0</LangVersion>
+    <AssemblyName>oracle_fail</AssemblyName>
+    <RootNamespace>Oracle</RootNamespace>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <TieredPGO>true</TieredPGO>
+    <ServerGarbageCollector>false</ServerGarbageCollector>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <NoWarn>$(NoWarn);CS1591;NU1902;NU1903</NoWarn>
+  </PropertyGroup>
+  <!-- Optimised deployment (see README "Performance"): `dotnet publish -c Release -p:OracleR2R=true -o DIR`.
+       linux-x64 only (drops ~450MB of other platforms' native libs) and ReadyToRun-precompiled assemblies. -->
+  <PropertyGroup Condition="'$(OracleR2R)' == 'true'">
+    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <!-- Instrumented PGO tier costs background-JIT CPU (~20% of a 14-job batch); steady state is unchanged within noise. -->
+    <TieredPGO>false</TieredPGO>
+  </PropertyGroup>
+  <!-- The RID-specific publish drops osu-framework's versioned ffmpeg libs (*.so.N); copy them so the native set is
+       identical to the portable build (only used for video decoding, never loaded by the oracle, kept for parity). -->
+  <Target Name="CopyVersionedNativeLibs" AfterTargets="Publish" Condition="'$(OracleR2R)' == 'true'">
+    <ItemGroup>
+      <_OracleVersionedNative Include="$(NuGetPackageRoot)ppy.osu.framework.nativelibs/*/runtimes/linux-x64/native/*.so.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_OracleVersionedNative)" DestinationFolder="$(PublishDir)" SkipUnchangedFiles="true" />
+  </Target>
+  <ItemGroup>
+    <ProjectReference Include="../lazer/osu.Game/osu.Game.csproj" />
+    <ProjectReference Include="../lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj" />
+  </ItemGroup>
+  <!-- Embed the pinned lazer commit (../LAZER_COMMIT) into the assembly. -->
+  <Target Name="EmbedLazerCommit" BeforeTargets="GetAssemblyAttributes">
+    <ReadLinesFromFile File="$(MSBuildThisFileDirectory)../LAZER_COMMIT">
+      <Output TaskParameter="Lines" PropertyName="LazerCommit" />
+    </ReadLinesFromFile>
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>LazerCommit</_Parameter1>
+        <_Parameter2>$(LazerCommit)</_Parameter2>
+      </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
+</Project>

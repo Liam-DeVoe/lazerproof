@@ -1,0 +1,11 @@
+[package]
+name = "simtest_rs"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "simtest_rs"
+path = "src/main.rs"
+
+[dependencies]
+osu_eval_core = { path = "../osu_eval_core" }

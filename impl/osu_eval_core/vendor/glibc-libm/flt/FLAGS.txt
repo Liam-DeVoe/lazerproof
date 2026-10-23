@@ -1,0 +1,44 @@
+Informational (the lead's build.rs owns the real command line).
+
+Target behaviour: glibc 2.39 x86-64 libm (Ubuntu 2.39-0ubuntu8.9) on an FMA+AVX2 CPU,
+where the ifunc selects the -mfma -mavx2 builds (GCC default -ffp-contract=fast) of
+sinf cosf expf logf powf (sysdeps/x86_64/fpu/multiarch/*-fma.c), and the generic
+baseline (SSE2, no contraction) of tanf asinf acosf atanf atan2f.
+
+Fixed flags these sources are written for (validated on x86-64, gcc 13.3 and clang 18):
+  -O2 -std=gnu11 -ffp-contract=off -fno-fast-math -fno-builtin -fno-strict-aliasing
+  -fvisibility=hidden -w -fPIC -I<this dir>
+No -m flags and no -D defines are needed. The FMA variant is reproduced in the source:
+every a*b+c that GCC -O2 -mfma -mavx2 contracts (from -fdump-tree-widening_mul-details,
+"Generated FMA") is written LP_FMA(a,b,c) = __builtin_fma, enabled per TU by
+LP_FLT_FMA_VARIANT (s_sinf.c s_cosf.c e_expf.c e_logf.c e_powf.c). In s_tanf.c the shared
+s_sincosf.h reduce_fast stays a plain multiply-subtract. Without -mfma, __builtin_fma becomes
+a call to fma() (correctly rounded everywhere: glibc, macOS libSystem); with -mfma it
+is an inline vfmadd. Both give the same bits.
+
+Validated (test/smoke.c against the VM's libm.so.6): gcc fixed flags, gcc fixed flags +
+-mfma -mavx2, clang fixed flags: see STATE.md [d86-H4] line for the counts.
+
+UNVALIDATED: aarch64 / Apple clang. Expected to match: the code has no x86 intrinsics
+or asm, FLT_EVAL_METHOD is 0, double_t is double, -ffp-contract=off stops clang's default
+contraction (on aarch64 clang contracts by default, so that flag is required), and
+__builtin_fma maps to fmadd. Not run on such a machine.
+
+Edits made to the glibc files (all marked or mechanical):
+- glibc-internal #includes (math_private.h, math-barriers.h, math-narrow-eval.h,
+  math-underflow.h, libm-alias-*.h, nan-high-order-bit.h) -> "lp_flt_shim.h".
+- Generic sincosf_poly.h + s_sincosf_data.c used instead of sysdeps/x86/fpu's vector
+  versions: same coefficients and the same operation order in sinf_poly (sincosf_poly,
+  the only vector user, is not used by sinf/cosf/tanf).
+- LP_FMA at the contracted sites (sincosf_poly.h sinf_poly, s_sincosf.h reduce_fast,
+  e_expf.c, e_logf.c, e_powf.c). In expf, GCC fuses the product z = InvLn2N*xd into
+  both z+SHIFT and z-kd, so both are written as fma.
+- Exports renamed by macro: lp_sinf lp_cosf lp_tanf lp_asinf lp_acosf lp_atanf lp_expf
+  lp_logf lp_atan2f lp_powf. Other external symbols are lp_flt_* (tables, __math_*f,
+  __kernel_tanf). Barriers are plain volatile; errno is still set as in glibc.
+- NaN results computed explicitly (lp_flt_quiet / lp_flt_nan2 / lp_flt_x86_default_nan in
+  lp_flt_shim.h) to reproduce x86-64 SSE bits on any CPU and compiler: default NaN 0xffc00000
+  from invalid ops (__math_invalidf, tanf(inf)); two-NaN a+b gives quiet(a); NaN inputs are
+  quieted. asinf/acosf additionally follow the exported SVID compat wrappers
+  (math/w_asinf_compat.c, w_acosf_compat.c): |x|>1 returns NAN = 0x7fc00000. The atan2f compat
+  wrapper only sets errno (_LIB_VERSION is _POSIX_), so it changes no value.

@@ -1,0 +1,18 @@
+[package]
+name = "osu_eval"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "osu_eval"
+path = "src/main.rs"
+
+[dependencies]
+osu_eval_core = { path = "../osu_eval_core" }
+
+[features]
+# D86: statically linked vendored libm / liblzma instead of dlopen (automatic on non-Linux targets)
+vendored-libm = ["osu_eval_core/vendored-libm"]
+vendored-lzma = ["osu_eval_core/vendored-lzma"]
+vendored = ["osu_eval_core/vendored"]
+verify-libm = ["osu_eval_core/verify-libm"]

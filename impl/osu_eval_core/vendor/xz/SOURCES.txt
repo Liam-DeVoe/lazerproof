@@ -1,0 +1,13 @@
+# Vendored liblzma decoder subset: xz 5.4.5 = Ubuntu xz-utils 5.6.1+really5.4.5-1ubuntu0.4
+# (orig tarball + debian/patches applied). One .c per line, relative to this dir.
+-DHAVE_CONFIG_H
+-Isrc/common
+-Isrc/liblzma/api
+-Isrc/liblzma/common
+-Isrc/liblzma/lz
+-Isrc/liblzma/lzma
+-Isrc/liblzma/rangecoder
+src/liblzma/common/common.c
+src/liblzma/common/alone_decoder.c
+src/liblzma/lz/lz_decoder.c
+src/liblzma/lzma/lzma_decoder.c

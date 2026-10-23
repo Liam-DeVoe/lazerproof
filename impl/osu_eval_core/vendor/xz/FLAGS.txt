@@ -1,0 +1,18 @@
+Build interface (D86): the lead's build.rs compiles each .c in SOURCES.txt with
+  $CC -O2 -std=gnu11 -ffp-contract=off -fno-fast-math -fno-builtin -fno-strict-aliasing \
+      -fvisibility=hidden -w -fPIC -I<this dir> <the -D/-I lines of SOURCES.txt, -I relative to this dir> -c
+No other defines needed: config.h (found via -I<this dir>, included by sysdefs.h under HAVE_CONFIG_H)
+carries everything, incl. NDEBUG and lp_prefix.h.
+Exports (visibility("default") via LZMA_API / HAVE_VISIBILITY, liblzma 5.4.5 ABI, lzma_stream unchanged):
+  lp_lzma_alone_decoder, lp_lzma_code, lp_lzma_end  (+ unused lp_lzma_memusage/memlimit_*/get_*/version_*)
+All other external symbols are lp_lzma_* too (lp_prefix.h), so there is no clash with a system liblzma.
+Needs only libc: malloc calloc free memcpy memmove memset.
+Tested: gcc 13.3 and clang 18 (x86-64 Linux); test/smoke.c compares against the system liblzma.so.5.
+
+Provenance: Ubuntu archive xz-utils_5.6.1+really5.4.5.orig.tar.xz (sha256 da9dec6c12cf2ecf269c31ab65b5de18e8e52b96f35d5bcd08c12b43e6878803,
+matches the signed .dsc) + xz-utils_5.6.1+really5.4.5-1ubuntu0.4.debian.tar.xz (sha256 b11106c2...c8b424) patches applied
+(LP-2170056_1 touches lz_decoder.c, LP-2170056_2 alone_decoder.c; the others touch files not vendored). src/liblzma of the orig
+tarball is identical to upstream GitHub xz-5.4.5.tar.gz (sha256 135c90b934aee8fbc0d467de87a05cb70d627da36abe518c357a873709e5b7d6).
+Files are verbatim copies; only config.h, lp_prefix.h, SOURCES.txt, FLAGS.txt, test/ are new.
+Smoke test (2026-10-23, gcc 13.3 and clang 18): 12490 corpus .osr (data/replays_v2 + data/replays) + 32474 truncated/corrupted/
+max_out variants, 44964 comparisons vs system liblzma 5.4.5: 0 mismatches (output bytes, lzma_ret, total_in/out).

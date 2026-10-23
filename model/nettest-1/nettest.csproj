@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <TieredPGO>false</TieredPGO>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- lazer source, verbatim (pinned checkout) -->
+    <Compile Include="../../lazer/osu.Game/Beatmaps/Formats/Parsing.cs" Link="Parsing.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- the exact binaries lazer 2026.1005.0-lazer references (nupkg cache; no lazer rebuild) -->
+    <Reference Include="osu.Framework"><HintPath>$(HOME)/.nuget/packages/ppy.osu.framework/2026.921.1/lib/net10.0/osu.Framework.dll</HintPath></Reference>
+    <Reference Include="osuTK"><HintPath>$(HOME)/.nuget/packages/ppy.osutk.ns20/1.0.211/lib/netstandard2.0/osuTK.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>

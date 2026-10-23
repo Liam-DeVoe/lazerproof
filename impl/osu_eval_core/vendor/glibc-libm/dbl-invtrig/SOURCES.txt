@@ -1,0 +1,4 @@
+# glibc 2.39 sysdeps/ieee754/dbl-64 inverse trig, x86-64 *_fma variants (lp_asin lp_acos lp_atan lp_atan2)
+e_asin.c
+s_atan.c
+e_atan2.c

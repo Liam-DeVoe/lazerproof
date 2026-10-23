@@ -1,0 +1,7 @@
+[workspace]
+members = ["osu_eval_core", "osu_eval_bench", "simtest_rs", "osu_eval"]
+resolver = "2"
+
+[profile.release]
+opt-level = 3
+debug = false

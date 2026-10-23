@@ -1,0 +1,7 @@
+# glibc 2.39 sysdeps/ieee754/dbl-64 sin/cos/tan, vendored for lazerproof (D86). LGPL-2.1+, see COPYING.LIB.
+# Reproduces the x86-64 multiarch __sin_fma/__cos_fma/__tan_fma (s_sin-fma.c, s_tan-fma.c: -mfma -mavx2,
+# GCC -ffp-contract=fast) + baseline __branred. Exports lp_sin, lp_cos, lp_tan; internals lp_trig_*.
+s_sin.c
+s_tan.c
+branred.c
+sincostab.c

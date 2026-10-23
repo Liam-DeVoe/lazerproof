@@ -1,0 +1,93 @@
+
+Welcome to .NET 10.0!
+---------------------
+SDK Version: 10.0.402
+
+----------------
+Installed an ASP.NET Core HTTPS development certificate.
+To trust the certificate, run 'dotnet dev-certs https --trust'
+Learn about HTTPS: https://aka.ms/dotnet-https
+
+----------------
+Write your first app: https://aka.ms/dotnet-hello-world
+Find out what's new: https://aka.ms/dotnet-whats-new
+Explore documentation: https://aka.ms/dotnet-docs
+Report issues and find source on GitHub: https://github.com/dotnet/core
+Use 'dotnet --help' to see available commands or visit: https://aka.ms/dotnet-cli
+--------------------------------------------------------------------------------------
+  Determining projects to restore...
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1902: Package 'MessagePack' 3.1.8 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h [/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj]
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1903: Package 'Microsoft.AspNetCore.SignalR.Common' 10.0.12 has a known high severity vulnerability, https://github.com/advisories/GHSA-334f-vvp4-7g6p [/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj]
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1902: Package 'Microsoft.AspNetCore.SignalR.Protocols.MessagePack' 10.0.12 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-86xp-94pg-8r6r [/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj]
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1902: Package 'SixLabors.ImageSharp' 3.1.11 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-gwg2-r3hj-4w44 [/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj]
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1902: Package 'MessagePack' 3.1.8 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-j3p4-wp97-rph4 [/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj]
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1903: Package 'Microsoft.AspNetCore.SignalR.Common' 10.0.12 has a known high severity vulnerability, https://github.com/advisories/GHSA-334f-vvp4-7g6p
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-j9gm-c75j-xc9q [/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj]
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1902: Package 'Microsoft.AspNetCore.SignalR.Protocols.MessagePack' 10.0.12 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-86xp-94pg-8r6r
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-jjfr-hcj7-qf5w [/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj]
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1902: Package 'SixLabors.ImageSharp' 3.1.11 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-gwg2-r3hj-4w44
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1902: Package 'SixLabors.ImageSharp' 3.1.11 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-wmxv-xphr-5c9g [/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj]
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-j3p4-wp97-rph4
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-j9gm-c75j-xc9q
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-jjfr-hcj7-qf5w
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1902: Package 'SixLabors.ImageSharp' 3.1.11 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-wmxv-xphr-5c9g
+  Restored /home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj (in 12.76 sec).
+  Restored /home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj (in 12.76 sec).
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1902: Package 'MessagePack' 3.1.8 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1903: Package 'Microsoft.AspNetCore.SignalR.Common' 10.0.12 has a known high severity vulnerability, https://github.com/advisories/GHSA-334f-vvp4-7g6p
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1902: Package 'Microsoft.AspNetCore.SignalR.Protocols.MessagePack' 10.0.12 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-86xp-94pg-8r6r
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1902: Package 'SixLabors.ImageSharp' 3.1.11 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-gwg2-r3hj-4w44
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-j3p4-wp97-rph4
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-j9gm-c75j-xc9q
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-jjfr-hcj7-qf5w
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1902: Package 'SixLabors.ImageSharp' 3.1.11 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-wmxv-xphr-5c9g
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1902: Package 'MessagePack' 3.1.8 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1903: Package 'Microsoft.AspNetCore.SignalR.Common' 10.0.12 has a known high severity vulnerability, https://github.com/advisories/GHSA-334f-vvp4-7g6p
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1902: Package 'Microsoft.AspNetCore.SignalR.Protocols.MessagePack' 10.0.12 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-86xp-94pg-8r6r
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1902: Package 'SixLabors.ImageSharp' 3.1.11 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-gwg2-r3hj-4w44
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-j3p4-wp97-rph4
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-j9gm-c75j-xc9q
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-jjfr-hcj7-qf5w
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1902: Package 'SixLabors.ImageSharp' 3.1.11 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-wmxv-xphr-5c9g
+  osu.Game -> /home/exedev/lazerproof/lazer/osu.Game/bin/Release/net10.0/osu.Game.dll
+  osu.Game.Rulesets.Osu -> /home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/bin/Release/net10.0/osu.Game.Rulesets.Osu.dll
+
+Build succeeded.
+
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1902: Package 'MessagePack' 3.1.8 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h [/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj]
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1903: Package 'Microsoft.AspNetCore.SignalR.Common' 10.0.12 has a known high severity vulnerability, https://github.com/advisories/GHSA-334f-vvp4-7g6p [/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj]
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1902: Package 'Microsoft.AspNetCore.SignalR.Protocols.MessagePack' 10.0.12 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-86xp-94pg-8r6r [/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj]
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1902: Package 'SixLabors.ImageSharp' 3.1.11 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-gwg2-r3hj-4w44 [/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj]
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1902: Package 'MessagePack' 3.1.8 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-j3p4-wp97-rph4 [/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj]
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1903: Package 'Microsoft.AspNetCore.SignalR.Common' 10.0.12 has a known high severity vulnerability, https://github.com/advisories/GHSA-334f-vvp4-7g6p
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-j9gm-c75j-xc9q [/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj]
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1902: Package 'Microsoft.AspNetCore.SignalR.Protocols.MessagePack' 10.0.12 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-86xp-94pg-8r6r
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-jjfr-hcj7-qf5w [/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj]
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1902: Package 'SixLabors.ImageSharp' 3.1.11 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-gwg2-r3hj-4w44
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1902: Package 'SixLabors.ImageSharp' 3.1.11 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-wmxv-xphr-5c9g [/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj]
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-j3p4-wp97-rph4
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-j9gm-c75j-xc9q
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-jjfr-hcj7-qf5w
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1902: Package 'SixLabors.ImageSharp' 3.1.11 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-wmxv-xphr-5c9g
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1902: Package 'MessagePack' 3.1.8 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1903: Package 'Microsoft.AspNetCore.SignalR.Common' 10.0.12 has a known high severity vulnerability, https://github.com/advisories/GHSA-334f-vvp4-7g6p
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1902: Package 'Microsoft.AspNetCore.SignalR.Protocols.MessagePack' 10.0.12 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-86xp-94pg-8r6r
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1902: Package 'SixLabors.ImageSharp' 3.1.11 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-gwg2-r3hj-4w44
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-j3p4-wp97-rph4
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-j9gm-c75j-xc9q
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-jjfr-hcj7-qf5w
+/home/exedev/lazerproof/lazer/osu.Game.Rulesets.Osu/osu.Game.Rulesets.Osu.csproj : warning NU1902: Package 'SixLabors.ImageSharp' 3.1.11 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-wmxv-xphr-5c9g
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1902: Package 'MessagePack' 3.1.8 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1903: Package 'Microsoft.AspNetCore.SignalR.Common' 10.0.12 has a known high severity vulnerability, https://github.com/advisories/GHSA-334f-vvp4-7g6p
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1902: Package 'Microsoft.AspNetCore.SignalR.Protocols.MessagePack' 10.0.12 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-86xp-94pg-8r6r
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1902: Package 'SixLabors.ImageSharp' 3.1.11 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-gwg2-r3hj-4w44
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-j3p4-wp97-rph4
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-j9gm-c75j-xc9q
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1903: Package 'SixLabors.ImageSharp' 3.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-jjfr-hcj7-qf5w
+/home/exedev/lazerproof/lazer/osu.Game/osu.Game.csproj : warning NU1902: Package 'SixLabors.ImageSharp' 3.1.11 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-wmxv-xphr-5c9g
+    32 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:01:50.48

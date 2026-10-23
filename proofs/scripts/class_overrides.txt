@@ -1,0 +1,19 @@
+# D67 classification overrides (infra lead; read by proof_status.py). Format: <Aeneas fn> proved <reason>
+# CONDITIONAL = the theorem assumes ANOTHER fn's refinement or an owed open obligation. Ordinary preconditions on input /
+# state values that the caller discharges (overflow headroom, length bounds, step-invariant / well-formedness premises)
+# are not conditional: the theorems below are PROVED even if their author tagged them `-- CONDITIONAL:`.
+sim.step.became_alive proved step-invariant premises (free list, capacities, pools, transform budget) + context premises
+sim.step.on_killed proved hcs = completed_spins * 360 < 2^63 overflow headroom; htl/hp context premises
+sim.step.spinner_result proved h = completed_spins * 360 < 2^63 overflow headroom
+sim.step.update_bonus_score proved hcs overflow headroom (total_rotation)
+sim.step.update_spinner proved hcs = completed_spins + 2*10^6 <= 2^54 overflow headroom; state/context well-formedness
+sim.step.part_present proved hk = instance index of part_inst's result in range (state well-formedness)
+# Format 2: <Aeneas fn> fragment <reason> = an audited `<fn>_refines` that is NOT stated against a spec def (no bridge);
+# it is classified FRAGMENT and becomes COVERED only through the D63 call-graph check (final audit m3, 7b69eef).
+sim.step.receptor_ref fragment against s3c_recRefS (verbatim copy, no rfl bridge, theorem unused); parent propagate_press unfolds it
+sim.step.v_eq_bindable fragment against s3c_vEq (no bridge, unused); parent apply_bindings unfolds it
+sim.step.relax_requirements fragment against s3d_reqS (no bridge, unused); parent relax_update unfolds it
+sim.step.repel_slider_clamp fragment against s3c_rscS (no bridge, unused); parent magnet_one unfolds it
+sim.step.barrel_roll_update fragment against an explicit Rust-state update, not `.barrelRoll` of playfieldUpdate
+eval.step_times_of fragment against `c.steps.map time` (Rust level)
+sim.step.block_vt fragment against s3b_vtS (copy of a local `let vt`); bridged in input_block_periods

@@ -1,0 +1,602 @@
+#!/usr/bin/env -S python3 -I
+"""lazerproof: evaluate an osu! (standard) score with the verified evaluator `osu_eval` and compare it to the server.
+
+  lazerproof https://osu.ppy.sh/scores/7737706899        (score URL; also https://osu.ppy.sh/scores/osu/{legacy_id})
+  lazerproof 7737706899                                  (bare score id)
+  lazerproof replay.osr [--beatmap map.osu] [--mods JSON] [--replace-mods]
+  options: --json (raw osu_eval JSON + server comparison), --schedule catchup|perframe|dense1ms, --offline
+
+Credentials (score ids, and .osr files without --beatmap whose map is not cached): OSU_CLIENT_ID / OSU_CLIENT_SECRET
+env vars, or ~/.config/lazerproof/config with lines `client_id = ...` and `client_secret = ...`.
+Cache: ~/.cache/lazerproof/{scores,replays,beatmaps}/. osu_eval: $OSU_EVAL, else <repo>/impl/target/release/osu_eval
+(built with `cargo build --release -p osu_eval` when missing). Stdlib only.
+
+Mods: like the server-agreement pipeline (difftest/oracle_vs_server_v2.py), osu_eval uses the replay's own mods
+(lazer .osr JSON, or the legacy bitmask + Classic for stable replays); the server's mods are compared and any
+difference is reported.
+"""
+import argparse, hashlib, json, math, os, re, shutil, sqlite3, struct, subprocess, sys, time, urllib.error, urllib.parse, urllib.request
+
+ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
+CACHE = os.path.join(os.environ.get("XDG_CACHE_HOME") or os.path.expanduser("~/.cache"), "lazerproof")
+CONFIG = os.path.join(os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config"), "lazerproof", "config")
+API = "https://osu.ppy.sh/api/v2"
+UA = "lazerproof/0.1 (lazerproof evaluator CLI)"
+REPO_DATA = os.path.join(ROOT, "data")  # read-only extra cache when run inside the lazerproof repo
+
+HELP_CREDS = """lazerproof: no osu! API credentials found.
+Register an OAuth application at https://osu.ppy.sh/home/account/edit (section "OAuth", "New OAuth Application";
+any name, the callback URL can stay empty), then either
+  export OSU_CLIENT_ID=<client id>  OSU_CLIENT_SECRET=<client secret>
+or write %s:
+  client_id = <client id>
+  client_secret = <client secret>
+(An .osr file plus --beatmap FILE.osu needs no credentials.)""" % CONFIG
+
+
+class Fail(Exception):
+    pass
+
+
+def warn(*a):
+    print("lazerproof:", *a, file=sys.stderr, flush=True)
+
+
+# ------------------------------------------------------------------------------------------------ API
+
+def load_creds():
+    cid, sec = os.environ.get("OSU_CLIENT_ID"), os.environ.get("OSU_CLIENT_SECRET")
+    if not (cid and sec) and os.path.exists(CONFIG):
+        kv = {}
+        with open(CONFIG) as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("#"):
+                    continue
+                m = re.match(r"(?:export\s+)?([A-Za-z_]+)\s*[=:]\s*(.*)$", line)
+                if m:
+                    kv[m.group(1).lower()] = m.group(2).strip().strip('"').strip("'")
+        cid = cid or kv.get("client_id") or kv.get("osu_client_id")
+        sec = sec or kv.get("client_secret") or kv.get("osu_client_secret")
+    if not (cid and sec):
+        print(HELP_CREDS, file=sys.stderr)
+        sys.exit(2)
+    return cid, sec
+
+
+class Api:
+    """client_credentials token + pacing as in difftest/fetch_v2.py (1.1 s between requests, 6.5 s between replay
+    downloads across runs, exponential back-off on 429/5xx honouring Retry-After)."""
+
+    def __init__(self, offline=False):
+        self.offline = offline
+        self.token = None
+        self.last = 0.0
+
+    def _pace(self, interval):
+        d = self.last + interval - time.time()
+        if d > 0:
+            time.sleep(d)
+        self.last = time.time()
+
+    def _token(self):
+        if self.token:
+            return self.token
+        cid, sec = load_creds()
+        body = urllib.parse.urlencode({"client_id": cid, "client_secret": sec, "grant_type": "client_credentials",
+                                       "scope": "public"}).encode()
+        self._pace(1.1)
+        try:
+            r = urllib.request.urlopen(urllib.request.Request("https://osu.ppy.sh/oauth/token", body,
+                                                              headers={"User-Agent": UA}), timeout=60)
+        except urllib.error.HTTPError as e:
+            raise Fail("token request failed (HTTP %d): check OSU_CLIENT_ID / OSU_CLIENT_SECRET" % e.code)
+        self.token = json.load(r)["access_token"]
+        return self.token
+
+    def get(self, url, auth=True, tries=7):
+        """(status, bytes); 404/403/410/422 -> (code, b'')."""
+        if self.offline:
+            raise Fail("needs the network (%s) but --offline was given" % url.split("?")[0])
+        backoff = 0.0
+        for _ in range(tries):
+            hdr = {"User-Agent": UA, "Accept": "application/json"}
+            if auth:
+                hdr["Authorization"] = "Bearer " + self._token()
+                hdr["x-api-version"] = "20240529"
+            self._pace(1.1)
+            try:
+                r = urllib.request.urlopen(urllib.request.Request(url, headers=hdr), timeout=120)
+                return r.status, r.read()
+            except urllib.error.HTTPError as e:
+                if e.code in (404, 403, 410, 422):
+                    return e.code, b""
+                if e.code == 401 and auth:
+                    self.token = None
+                wait = int(e.headers.get("Retry-After", "0") or 0) if e.code == 429 else 0
+                err = "HTTP %d" % e.code
+            except Exception as e:
+                wait, err = 0, repr(e)[:120]
+            backoff = min(300.0, max(5.0, backoff * 2))
+            w = max(wait, backoff)
+            warn("request failed (%s) %s; retrying in %.0fs" % (err, url.split("?")[0], w))
+            time.sleep(w)
+        raise Fail("giving up on %s" % url.split("?")[0])
+
+    def download_replay(self, score_id):
+        # replay downloads are rate-limited separately: keep >= 6.5 s between downloads, also across runs
+        stamp = os.path.join(CACHE, ".last_download")
+        try:
+            d = os.path.getmtime(stamp) + 6.5 - time.time()
+            if d > 0:
+                time.sleep(d)
+        except OSError:
+            pass
+        st, b = self.get("%s/scores/%d/download" % (API, score_id))
+        os.makedirs(CACHE, exist_ok=True)
+        open(stamp, "w").close()
+        if st != 200 or not b:
+            raise Fail("replay download for score %d failed (HTTP %s)" % (score_id, st))
+        return b
+
+
+# ------------------------------------------------------------------------------------------------ files
+
+def md5(b):
+    return hashlib.md5(b).hexdigest()
+
+
+def cache_path(*p):
+    path = os.path.join(CACHE, *p)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    return path
+
+
+def write_atomic(path, b):
+    tmp = path + ".tmp%d" % os.getpid()
+    with open(tmp, "wb") as f:
+        f.write(b)
+    os.replace(tmp, path)
+
+
+def osr_header(b):
+    """(mode, version, beatmap_md5, player_name) from an .osr."""
+    def ustr(i):
+        if b[i] == 0:
+            return "", i + 1
+        if b[i] != 0x0b:
+            raise Fail("not an .osr file (bad string tag)")
+        i += 1
+        n = sh = 0
+        while True:
+            c = b[i]; i += 1
+            n |= (c & 0x7f) << sh; sh += 7
+            if c < 0x80:
+                break
+        return b[i:i + n].decode("utf-8", "replace"), i + n
+    try:
+        mode, ver = b[0], struct.unpack_from("<i", b, 1)[0]
+        bm, i = ustr(5)
+        player, _ = ustr(i)
+    except (IndexError, struct.error):
+        raise Fail("not an .osr file (truncated header)")
+    return mode, ver, bm, player
+
+
+def osu_meta(path):
+    meta = {}
+    with open(path, encoding="utf-8-sig", errors="replace") as f:
+        sect = None
+        for line in f:
+            line = line.strip()
+            if line.startswith("["):
+                sect = line
+                if sect not in ("[General]", "[Metadata]"):
+                    if "Title" in meta:
+                        break
+                continue
+            if sect in ("[General]", "[Metadata]") and ":" in line:
+                k, v = line.split(":", 1)
+                meta[k.strip()] = v.strip()
+    return meta
+
+
+def repo_beatmap(beatmap_id, want_md5):
+    """the lazerproof repo's corpus (data/beatmaps), if present and the md5 matches."""
+    for name in ("%d.osu" % beatmap_id, "%d.%s.osu" % (beatmap_id, want_md5[:8])):
+        p = os.path.join(REPO_DATA, "beatmaps", name)
+        if os.path.exists(p):
+            with open(p, "rb") as f:
+                if md5(f.read()) == want_md5:
+                    return p
+    return None
+
+
+def get_beatmap(api, beatmap_id, want_md5):
+    p = cache_path("beatmaps", want_md5 + ".osu")
+    if os.path.exists(p):
+        return p
+    rp = repo_beatmap(beatmap_id, want_md5) if beatmap_id else None
+    if rp:
+        return rp
+    if beatmap_id is None:
+        st, b = api.get("%s/beatmaps/lookup?checksum=%s" % (API, want_md5))
+        if st != 200:
+            raise Fail("no beatmap with md5 %s on osu.ppy.sh (HTTP %s); pass --beatmap FILE.osu" % (want_md5, st))
+        beatmap_id = json.loads(b)["id"]
+    st, b = api.get("https://osu.ppy.sh/osu/%d" % beatmap_id, auth=False)
+    if st != 200 or not b:
+        raise Fail("download of beatmap %d failed (HTTP %s)" % (beatmap_id, st))
+    if md5(b) != want_md5:
+        raise Fail("beatmap %d on osu.ppy.sh (md5 %s) differs from the replay's (%s): the map was updated after the "
+                   "score was set; pass the old version with --beatmap" % (beatmap_id, md5(b), want_md5))
+    write_atomic(p, b)
+    return p
+
+
+def get_score(api, ident, legacy):
+    key = ("osu-%d" % ident) if legacy else str(ident)
+    p = cache_path("scores", key + ".json")
+    if os.path.exists(p):
+        with open(p) as f:
+            return json.load(f)
+    url = "%s/scores/osu/%d" % (API, ident) if legacy else "%s/scores/%d" % (API, ident)
+    try:
+        st, b = api.get(url)
+    except Fail:
+        # no network/credentials: the repo corpus may have the (feed) score JSON
+        s = repo_score(ident) if not legacy else None
+        if s:
+            return s
+        raise
+    if st != 200:
+        raise Fail("score %s not found (HTTP %s)" % (key, st))
+    s = json.loads(b)
+    write_atomic(p, json.dumps(s).encode())
+    if legacy and s.get("id"):
+        write_atomic(cache_path("scores", "%d.json" % s["id"]), json.dumps(s).encode())
+    return s
+
+
+def repo_score(sid):
+    db = os.path.join(REPO_DATA, "index_v2.sqlite")
+    if not os.path.exists(db):
+        return None
+    try:
+        r = sqlite3.connect("file:%s?mode=ro" % db, uri=True, timeout=10).execute(
+            "select json from scores where id=?", (sid,)).fetchone()
+    except sqlite3.Error:
+        return None
+    return json.loads(r[0]) if r else None
+
+
+def get_replay(api, s):
+    sid = s["id"]
+    p = cache_path("replays", "%d.osr" % sid)
+    if os.path.exists(p):
+        return p
+    for rp in [os.path.join(REPO_DATA, "replays_v2", "%d.osr" % sid)] + (
+            [os.path.join(REPO_DATA, "replays", "%d.osr" % s["legacy_score_id"])] if s.get("legacy_score_id") else []):
+        if os.path.exists(rp):
+            return rp
+    if not (s.get("has_replay") or s.get("replay")):
+        raise Fail("score %d has no replay available on osu.ppy.sh" % sid)
+    b = api.download_replay(sid)
+    osr_header(b)  # validates
+    write_atomic(p, b)
+    return p
+
+
+# ------------------------------------------------------------------------------------------------ evaluator
+
+def newest_source_mtime(impl):
+    """newest mtime among the sources osu_eval is built from (so a `git pull` triggers a rebuild)"""
+    t = 0.0
+    for top in ("osu_eval_core", "osu_eval"):
+        for d, _, fs in os.walk(os.path.join(impl, top)):
+            for f in fs:
+                t = max(t, os.path.getmtime(os.path.join(d, f)))
+    for f in ("Cargo.toml", "Cargo.lock"):
+        p = os.path.join(impl, f)
+        if os.path.exists(p):
+            t = max(t, os.path.getmtime(p))
+    return t
+
+
+def osu_eval_bin():
+    if os.environ.get("OSU_EVAL"):
+        return os.environ["OSU_EVAL"]
+    # lazerproof always uses the vendored glibc 2.39 libm / xz build (D96/D97): its bits do not depend on the CPU
+    # (the system libm picks FMA or SSE2 code paths per CPU). Own target dir, so the proof pipeline's default
+    # (dlopen) binary in impl/target is never replaced.
+    impl = os.path.join(ROOT, "impl")
+    tdir = os.path.join(impl, "target", "lazerproof")
+    b = os.path.join(tdir, "release", "osu_eval")
+    if not os.path.exists(os.path.join(impl, "Cargo.toml")):
+        if os.path.exists(b):
+            return b
+        raise Fail("osu_eval not found; set OSU_EVAL=/path/to/osu_eval")
+    if os.path.exists(b) and os.path.getmtime(b) >= newest_source_mtime(impl):
+        return b
+    warn("building osu_eval (cargo build --release -p osu_eval --features vendored) ...")
+    # tools/heavy is the dev VM's job semaphore (needs Linux flock); elsewhere (e.g. macOS) build directly
+    heavy = os.path.join(ROOT, "tools", "heavy")
+    use_heavy = os.access(heavy, os.X_OK) and shutil.which("flock") and os.path.exists("/proc/meminfo")
+    cmd = ([heavy] if use_heavy else []) + ["cargo", "build", "--release", "-p", "osu_eval", "--features", "vendored",
+                                            "--target-dir", tdir]
+    if subprocess.run(cmd, cwd=impl, stdout=sys.stderr).returncode != 0 or not os.path.exists(b):
+        raise Fail("building osu_eval failed")
+    os.utime(b)  # cargo may leave an up-to-date binary's mtime older than a touched-but-unchanged source
+    return b
+
+
+def run_eval(beatmap, replay, a):
+    cmd = [osu_eval_bin(), beatmap, replay, "--no-judgements"]
+    if a.schedule != "catchup":
+        cmd += ["--schedule", a.schedule]
+    if a.mods:
+        cmd += ["--mods", a.mods]
+    if a.replace_mods:
+        cmd.append("--replace-mods")
+    p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    try:
+        return json.loads(p.stdout)
+    except ValueError:
+        raise Fail("osu_eval failed (exit %d): %s" % (p.returncode, (p.stderr or p.stdout).strip()[:500]))
+
+
+def f64(x):
+    """osu_eval prints floats as their IEEE-754 bit pattern ("0x3fef...")."""
+    if isinstance(x, str) and x.startswith("0x") and len(x) == 18:
+        return struct.unpack(">d", bytes.fromhex(x[2:]))[0]
+    if isinstance(x, str) and x.startswith("0x") and len(x) == 10:  # float32 mod settings (e.g. DA circle_size)
+        return struct.unpack(">f", bytes.fromhex(x[2:]))[0]
+    return x
+
+
+def camel(k):
+    return "".join(p.capitalize() for p in k.split("_"))
+
+
+def _normval(v):
+    if isinstance(v, bool):
+        return v
+    if isinstance(v, (int, float)):
+        return float(v)
+    if isinstance(v, str):
+        if v.startswith("0x") and len(v) in (10, 18):
+            return float(struct.unpack("<f", struct.pack("<f", f64(v)))[0])
+        try:
+            return float(v)
+        except ValueError:
+            return v
+    return v
+
+
+def mods_differ(server, ours):
+    """server mods list only non-default settings; osu_eval lists every setting. Different iff the acronyms differ
+    or a setting the server lists has another value (floats compared at float32 precision)."""
+    o = {m["acronym"]: m.get("settings") or {} for m in ours}
+    if sorted(m["acronym"] for m in server) != sorted(o):
+        return True
+    for m in server:
+        for k, v in (m.get("settings") or {}).items():
+            a, b = _normval(v), _normval(o[m["acronym"]].get(k))
+            if isinstance(a, float) and isinstance(b, float):
+                a, b = (struct.unpack("<f", struct.pack("<f", x))[0] for x in (a, b))
+            if a != b:
+                return True
+    return False
+
+
+def stable_acc(lc):
+    """osu!stable accuracy from 300/100/50/miss counts"""
+    n = sum(lc.values())
+    return (300 * lc["300"] + 100 * lc["100"] + 50 * lc["50"]) / (300.0 * n) if n else 1.0
+
+
+def compare(L, inp, s):
+    """field-by-field differences osu_eval vs server (same rules as difftest/oracle_vs_server_v2.compare).
+    Returns (diffs {field: (ours, server)}, notes)."""
+    diffs, notes = {}, []
+    legacy = bool(s.get("legacy_score_id")) or inp.get("is_legacy_score")
+    if legacy:
+        # stable score: the server holds stable's judgements (300/100/50/miss, max combo); its total_score is a
+        # conversion of the stable score, not a lazer simulation result, so it is not compared (as in difftest v1).
+        lc = L["legacy_counts"]
+        st = s.get("statistics", {})
+        for ours, srv in (("300", "great"), ("100", "ok"), ("50", "meh"), ("miss", "miss")):
+            if lc[ours] != st.get(srv, 0):
+                diffs[srv] = (lc[ours], st.get(srv, 0))
+        if L["max_combo"] != s["max_combo"]:
+            diffs["max_combo"] = (L["max_combo"], s["max_combo"])
+        acc = stable_acc(lc)
+        if abs(acc - s["accuracy"]) > 5e-5:
+            diffs["accuracy (stable formula)"] = (acc, s["accuracy"])
+        notes.append("stable score: compared 300/100/50/miss, max combo and stable accuracy; the server's total_score "
+                     "(%s) is converted from stable's score %s and is not compared"
+                     % (s.get("total_score"), s.get("legacy_total_score")))
+        return diffs, notes
+    srv = {camel(k): v for k, v in s.get("statistics", {}).items() if v}
+    ours = {k: v for k, v in L["statistics"].items() if v}
+    for k in sorted(set(srv) | set(ours)):
+        if srv.get(k, 0) != ours.get(k, 0):
+            diffs["statistics." + k] = (ours.get(k, 0), srv.get(k, 0))
+    smax = {camel(k): v for k, v in s.get("maximum_statistics", {}).items() if v}
+    omax = {k: v for k, v in L["maximum_statistics"].items() if v}
+    for k in sorted(set(smax) | set(omax)):
+        if smax.get(k, 0) != omax.get(k, 0):
+            diffs["maximum_statistics." + k] = (omax.get(k, 0), smax.get(k, 0))
+    if L["max_combo"] != s["max_combo"]:
+        diffs["max_combo"] = (L["max_combo"], s["max_combo"])
+    acc = f64(L["accuracy"])
+    acc_f32 = struct.unpack("<f", struct.pack("<f", acc))[0]  # server: float32, served rounded to 6 dp
+    if s["accuracy"] not in (round(acc_f32, 6), round(acc, 6)):
+        diffs["accuracy"] = (acc, s["accuracy"])
+    if L["total_score"] != s["total_score"]:
+        diffs["total_score"] = (L["total_score"], s["total_score"])
+    if L["rank"] != s["rank"]:
+        diffs["rank"] = (L["rank"], s["rank"])
+    if (not L["failed"]) != bool(s.get("passed", True)):
+        diffs["passed"] = (not L["failed"], s.get("passed"))
+    if mods_differ(s.get("mods", []), inp.get("decoded_mods", [])):
+        notes.append("mods differ: server %s, replay %s" % (json.dumps(s.get("mods")), json.dumps(inp.get("decoded_mods"))))
+    return diffs, notes
+
+
+# ------------------------------------------------------------------------------------------------ output
+
+def pct(acc):
+    """accuracy as the game and website show it: truncated (not rounded) to 2 decimals (lazer FormatAccuracy)"""
+    return "%.2f%%" % (math.floor(acc * 10000) / 100)
+
+
+def fmt_mods(mods):
+    out = []
+    for m in mods:
+        st = m.get("settings") or {}
+        if st:
+            out.append("%s(%s)" % (m["acronym"], ", ".join("%s=%s" % (k, ("%g" % f64(v)) if isinstance(v, str) and v.startswith("0x") else v)
+                                                           for k, v in st.items() if v is not None)))
+        else:
+            out.append(m["acronym"])
+    return " ".join(out) or "NM"
+
+
+def summary(res, s, cmp_, player, mapname, beatmap):
+    L, inp = res["live"], res["input"]
+    P = print
+    P("player:     %s" % player)
+    P("map:        %s" % mapname)
+    P("mods:       %s" % fmt_mods(inp.get("mods", [])))
+    P("score:      %s%s" % ("{:,}".format(L["total_score"]), "  (lazer standardised; stable replay +CL)" if inp.get("is_legacy_score") else ""))
+    if inp.get("is_legacy_score"):
+        # stable scores are shown (and compared) with stable's accuracy formula, as on the website; lazer's
+        # accuracy also counts slider ticks/ends, so it differs
+        P("accuracy:   %s  (stable formula; lazer accuracy %s)" % (pct(stable_acc(L["legacy_counts"])), pct(f64(L["accuracy"]))))
+    else:
+        P("accuracy:   %s" % pct(f64(L["accuracy"])))
+    P("rank:       %s%s" % (L["rank"], "  (FAILED)" if L["failed"] else ""))
+    P("max combo:  %d" % L["max_combo"])
+    lc = L["legacy_counts"]
+    P("hits:       300: %d  100: %d  50: %d  miss: %d" % (lc["300"], lc["100"], lc["50"], lc["miss"]))
+    P("judgements: %s" % "  ".join("%s %d" % (k, v) for k, v in L["statistics"].items() if v))
+    if s is not None:
+        if s.get("pp") is not None:
+            P("pp:         %.2f (server, not verified)" % s["pp"])
+        diffs, notes = cmp_
+        for n in notes:
+            P("note:       %s" % n)
+        if not diffs:
+            P("server:     matches osu! server")
+        else:
+            P("server:     differs from the osu! server's numbers (ours vs server):")
+            for k, (o, v) in diffs.items():
+                P("              %-28s %s vs %s" % (k, o, v))
+            for line in explain_diffs(diffs, inp):
+                P("            " + line)
+
+
+# statistics that depend on exactly when the game sampled the cursor (slider tails/ticks/repeats, spinner bonus), plus
+# the totals they feed into; a replay file only keeps <= 60 fps cursor samples at integer-ms times
+SCHED_KEYS = {"SliderTailHit", "SmallTickHit", "SmallTickMiss", "LargeTickHit", "LargeTickMiss", "IgnoreMiss", "IgnoreHit",
+              "SmallBonus", "LargeBonus", "max_combo", "accuracy", "total_score", "rank"}
+
+
+def explain_diffs(diffs, inp):
+    """why ours (= what osu!lazer computes from this replay file) can differ from the server's numbers"""
+    if inp.get("is_legacy_score"):
+        return ["This is an osu!stable score: the server shows stable's own judgements of the live play. lazerproof shows",
+                "what osu!lazer computes when it replays the file (lazer plays stable replays with Classic mod, which",
+                "approximates but does not reproduce stable's judging), so differences here are expected."]
+    keys = {k.split(".", 1)[-1] for k in diffs}
+    if keys <= SCHED_KEYS:
+        return ["Expected: only slider tail/tick/combo differences. The server judged the live play, which sampled the",
+                "cursor every rendered frame; the replay file keeps <= 60 fps samples at integer-ms times, so osu!lazer",
+                "itself gets these numbers when it replays this file (about 1 in 3 lazer scores differs this way).",
+                "See docs/server-agreement.md."]
+    return ["Hit-circle-level difference: rare (integer-ms replay timing near a hit-window edge, or a replay gap).",
+            "If you think it is wrong, please report it with the score id (see docs/server-agreement.md)."]
+
+
+def main():
+    ap = argparse.ArgumentParser(prog="lazerproof", description=__doc__.split("\n\n")[0],
+                                 formatter_class=argparse.RawDescriptionHelpFormatter, epilog=__doc__.split("\n", 1)[1])
+    ap.add_argument("target", help="score URL, score id, or .osr file")
+    ap.add_argument("--beatmap", help=".osu file for an .osr (default: looked up by the replay's beatmap md5)")
+    ap.add_argument("--mods", help="mods JSON passed to osu_eval (merged with the replay's mods unless --replace-mods)")
+    ap.add_argument("--replace-mods", action="store_true")
+    ap.add_argument("--schedule", default="catchup", help="osu_eval frame schedule (default catchup, as the pipeline)")
+    ap.add_argument("--json", action="store_true", help="print the raw osu_eval JSON plus a server comparison block")
+    ap.add_argument("--offline", action="store_true", help="never use the network")
+    a = ap.parse_args()
+    api = Api(a.offline)
+    s = None
+    t = a.target.strip()
+    m = re.match(r"^(?:https?://)?osu\.ppy\.sh/scores/(?:(osu|taiko|fruits|mania)/)?(\d+)/?(?:[?#].*)?$", t)
+    if m or t.isdigit():
+        if a.beatmap:
+            raise Fail("--beatmap is only for .osr files")
+        if m and m.group(1) and m.group(1) != "osu":
+            raise Fail("only osu! (standard) scores are supported")
+        legacy = bool(m and m.group(1))
+        s = get_score(api, int(m.group(2) if m else t), legacy)
+        if s.get("ruleset_id", 0) != 0:
+            raise Fail("only osu! (standard) scores are supported (ruleset_id %s)" % s.get("ruleset_id"))
+        replay = get_replay(api, s)
+        with open(replay, "rb") as f:
+            _, _, rmd5, player = osr_header(f.read())
+        bm_md5 = (s.get("beatmap") or {}).get("checksum") or rmd5
+        if bm_md5 != rmd5:
+            raise Fail("score's beatmap md5 %s differs from the replay's %s" % (bm_md5, rmd5))
+        beatmap = get_beatmap(api, s["beatmap_id"], rmd5)
+        player = (s.get("user") or {}).get("username") or player
+    else:
+        if not os.path.exists(t):
+            raise Fail("%s: no such file (and not a score URL or id)" % t)
+        replay = t
+        with open(replay, "rb") as f:
+            mode, _, rmd5, player = osr_header(f.read())
+        if mode != 0:
+            raise Fail("only osu! (standard) replays are supported (mode %d)" % mode)
+        if a.beatmap:
+            beatmap = a.beatmap
+            with open(beatmap, "rb") as f:
+                if md5(f.read()) != rmd5:
+                    warn("warning: %s does not have the replay's beatmap md5 %s" % (beatmap, rmd5))
+        else:
+            beatmap = get_beatmap(api, None, rmd5)
+    res = run_eval(beatmap, replay, a)
+    if "live" not in res:
+        raise Fail("osu_eval rejected the input: %s" % json.dumps(res)[:800])
+    meta = osu_meta(beatmap)
+    mapname = "%s - %s [%s] (by %s)" % (meta.get("Artist", "?"), meta.get("Title", "?"), meta.get("Version", "?"),
+                                        meta.get("Creator", "?"))
+    if s is not None and s.get("beatmap", {}).get("id"):
+        mapname += "  https://osu.ppy.sh/b/%d" % s["beatmap"]["id"]
+    elif s is not None:
+        mapname += "  https://osu.ppy.sh/b/%d" % s["beatmap_id"]
+    cmp_ = compare(res["live"], res["input"], s) if s is not None else None
+    if a.json:
+        out = dict(res)
+        if s is not None:
+            diffs, notes = cmp_
+            out["server_comparison"] = {"score_id": s["id"], "legacy_score_id": s.get("legacy_score_id"),
+                                        "matches": not diffs,
+                                        "differences": {k: {"ours": o, "server": v} for k, (o, v) in diffs.items()},
+                                        "notes": notes, "server_pp_not_verified": s.get("pp")}
+        print(json.dumps(out, indent=1))
+    else:
+        summary(res, s, cmp_, player, mapname, beatmap)
+    if s is not None and cmp_[0]:
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Fail as e:
+        warn(str(e))
+        sys.exit(2)
+    except KeyboardInterrupt:
+        sys.exit(130)

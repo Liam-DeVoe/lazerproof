@@ -1,0 +1,29 @@
+# Refinement theorems not named `<fn>_refines` (read by check_all.sh, which audits them, and proof_status.py).
+# Format: <Aeneas fn> <theorem (namespace OsuProofs)> <proved|FRAGMENT> <note>
+#  proved   = a standalone refinement of the fn against the spec (counted like `<fn>_refines`)
+#  FRAGMENT = stated against a restated spec body / continuation; the note names the parent refinement that uses it
+# Used only when `<fn>_refines` is missing, unaudited, CONDITIONAL or FRAGMENT. Infra lead, RECON 2026-10-22 20:50.
+replay.frames.is_skip_marker s2_is_skip proved s[a..b] == "-12345"
+sim.basic.hr_index sim_hr_index_spec proved HitResult.toNat
+sim.step.input_lt sim_input_lt_eq FRAGMENT local simInLt (sort key); used by the input-order sort proofs
+sim.step.adaptive_speed_one s3b_as_step FRAGMENT s3b_asBodyS = adaptiveSpeedOnResult body; parent sim.step.update_state_from_result_refines
+sim.mods.apply_combo s2_apply_combo FRAGMENT s2_comboStep; parent sim.mods.config_of_mods_refines / score_multiplier_v2_refines
+sim.autogen.click_frames_fixup s2_fixup FRAGMENT continuation form; parent sim.autogen.add_click_frames_refines
+sim.autogen.slider_click_frames s2_slider_click_frames FRAGMENT s2_sliderClickS (rfl inside addClickFrames); parent sim.autogen.add_click_frames_refines
+sim.autogen.slider_frame_step s2_slider_frame_step FRAGMENT s2_sliderStepS; parent sim.autogen.add_click_frames_refines
+sim.autogen.spinner_click_frames s2_spinner_click_frames FRAGMENT s2_spinClickS; parent sim.autogen.add_click_frames_refines
+sim.step.custom_state_one s3b_cs_loop FRAGMENT customState loop step; parent sim.step.update_state_refines
+sim.step.spin_in_state s3b_cs_spinC FRAGMENT customState spin-in branch; parent sim.step.update_state_refines
+sim.step.transform_state s3b_cs_tfm FRAGMENT customState transforms; parent sim.step.update_state_refines
+sim.step.with_abs_begin s3b_cs_scale FRAGMENT withAbs prefix; parent sim.step.update_state_refines
+sim.step.with_abs_end s3b_cs_scale FRAGMENT withAbs suffix; parent sim.step.update_state_refines
+sim.step.handle_hit_sto_from sim_sto_from_loop FRAGMENT StartTimeOrderedHitPolicy loop (continuation form); parent sim.step.handle_hit_sto
+sim.step.insert_sorted_f64 js_ins FRAGMENT js_insL (bridged to insPos by js_insStep); Eval/JsonPrecEnd (not root-imported yet)
+sim.step.hidden_state sim.step.custom_state_refines FRAGMENT inlined (Hidden branch) in customState; parent sim.step.custom_state_refines
+sim.step.judge_started_nested sim_jsn_loop FRAGMENT loop lemma; parent sim.step.post_process_head_judgement_refines
+sim.step.preceding_end_times sim.step.mk_ctx_refines FRAGMENT inlined in mkCtx; parent sim.step.mk_ctx_refines
+sim.step.push_windowed_end_times js_pwet FRAGMENT Eval/JsonPrecEnd (not root-imported yet)
+sim.autogen.move_frame_step s2_move_frame_step FRAGMENT Sim2/AutoGen4; parent sim.autogen.move_to_hit_object_refines
+sim.mods.config_add_mod_b sim.mods.config_add_mod_refines FRAGMENT inlined (unfolded) in s2_cam; parent sim.mods.config_of_mods_refines
+sim.mods.config_add_mod_c sim.mods.config_add_mod_refines FRAGMENT inlined (unfolded) in s2_cam; parent sim.mods.config_of_mods_refines
+sim.step.mk_ctx js_mk_ctx_full proved hAP/hPE discharged by ap_frames_of_refines + preceding_end_times_refines (Eval/JsonMkCtx2)

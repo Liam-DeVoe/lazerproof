@@ -1,0 +1,14 @@
+lazer/
+data/
+target/
+*.osr
+bin/
+obj/
+.lake/
+osu-framework/
+__pycache__/
+impl/target/
+impl/llbc/
+proofs/.lake/
+bin-next/
+!impl/**/src/bin/

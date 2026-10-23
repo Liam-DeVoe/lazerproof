@@ -1,0 +1,86 @@
+#!/bin/bash
+# Run a CPU/memory-heavy command under the machine-wide heavy-job semaphore.
+# At most HEAVY_SLOTS (default 3) heavy jobs run at once; a job also waits to start
+# until MemAvailable >= HEAVY_MIN_MEM_MB (default 900). Nested calls (HEAVY_HELD=1) pass through.
+#   usage: tools/heavy <command> [args...]
+# HEAVY_EXCLUSIVE=1: take ALL slots (for jobs needing most of RAM, e.g. Aeneas ~2.9GB); new jobs queue behind it
+# via the gate lock, and it starts once running jobs finish and MemAvailable >= HEAVY_MIN_MEM_MB (default 3500 here; 6000 deadlocked behind the 2.3 GB proofs REPL).
+if [ -n "$HEAVY_HELD" ]; then exec "$@"; fi
+# Without flock or /proc/meminfo (not the dev VM, e.g. macOS) there is no semaphore to take: run directly.
+command -v flock >/dev/null 2>&1 && [ -r /proc/meminfo ] || exec "$@"
+slots=${HEAVY_SLOTS:-3}; minmem=${HEAVY_MIN_MEM_MB:-900}; dir=/tmp/osu-heavy; mkdir -p "$dir"
+# `lake build` in the proofs workspace: one at a time, lock taken BEFORE a slot (D58): concurrent lakes rebuilding the
+# same module leave missing .olean files for each other (2026-10-22 18:11, 18:30)
+if [ -z "$HEAVY_LAKE_LOCKED" ]; then
+  case "$PWD/ $*" in "$HOME"/lazerproof/proofs*"lake build"*|"$HOME"/osu-verified/proofs*"lake build"*|*"lake build"*OsuProofs*)
+    export HEAVY_LAKE_LOCKED=1; exec flock "$dir/lake-proofs.lock" "$0" "$@" ;;
+  esac
+fi
+# D90: Charon/Aeneas run one at a time (own lock, taken BEFORE a slot) in a NORMAL slot, never HEAVY_EXCLUSIVE: an
+# exclusive waiter needs all 3 slots at once and starved the queue behind multi-hour lake builds (2026-10-23 08:30:
+# two exclusive charon_checks, 5 jobs blocked at load 2). The 3 GB MemAvailable guard below still applies.
+if [ -z "$HEAVY_CHARON_LOCKED" ]; then
+  case "$*" in *charon*|*aeneas*)
+    export HEAVY_CHARON_LOCKED=1; unset HEAVY_EXCLUSIVE; exec flock "$dir/charon.lock" "$0" "$@" ;;
+  esac
+fi
+# Charon/Aeneas peak at ~2.6-2.9 GB: in a normal slot they must wait for 3 GB free, not 900 MB, or the
+# machine swaps (2026-10-22 15:45: swap full, Aeneas 1.1 GB swapped, 30% iowait) (D51).
+case "$*" in *charon*|*aeneas*) [ -z "$HEAVY_MIN_MEM_MB" ] && minmem=3000 ;; esac
+case "$*" in *"lake build"*) export LEAN_NUM_THREADS=${HEAVY_LAKE_THREADS:-1} ;; esac   # D69: cap lake build parallelism (each lean worker 1.3-1.9 GB; 1 while proofs finish)
+if [ -n "$HEAVY_EXCLUSIVE" ]; then
+  minmem=${HEAVY_MIN_MEM_MB:-3500}
+  # D74: first try for HEAVY_EXCL_PATIENCE s (default 300) WITHOUT the gate, taking all slots only when they are all
+  # free at once, so a waiting exclusive job doesn't block every other job (2026-10-23 02:12: an exclusive charon_check
+  # held the gate 12+ min behind one long job, 5 proof jobs stuck). Only after that does it take the gate and wait.
+  t0=$(date +%s); got=""
+  while [ $(( $(date +%s) - t0 )) -lt "${HEAVY_EXCL_PATIENCE:-300}" ]; do
+    exec 8>"$dir/gate"
+    if flock -n 8; then
+      ok=1; for i in $(seq 1 "$slots"); do eval "exec $((20+i))>\"$dir/slot$i\""; flock -n $((20+i)) || { ok=""; break; }; done
+      if [ -n "$ok" ]; then got=1; break; fi
+      for i in $(seq 1 "$slots"); do eval "exec $((20+i))>&-"; done; exec 8>&-
+    else exec 8>&-; fi
+    sleep 10
+  done
+  # patience exhausted: take the gate (blocks new heavy jobs) but for at most HEAVY_EXCL_MAX_WAIT s (default 300) while
+  # collecting the slots / memory; then release everything, back off HEAVY_EXCL_BACKOFF s (default 120) so queued jobs
+  # run, and retry (infra D74 addendum: the gate is never held indefinitely). Waits are logged in $dir/exclusive.log.
+  while [ -z "$got" ]; do
+    exec 8>"$dir/gate"; flock 8
+    end=$(( $(date +%s) + ${HEAVY_EXCL_MAX_WAIT:-300} )); n=0
+    for i in $(seq 1 "$slots"); do
+      rem=$(( end - $(date +%s) )); [ "$rem" -lt 1 ] && rem=1
+      eval "exec $((20+i))>\"$dir/slot$i\""; flock -w "$rem" $((20+i)) || break; n=$i
+    done
+    if [ "$n" = "$slots" ]; then
+      while [ "$(awk '/MemAvailable/ {print int($2/1024)}' /proc/meminfo)" -lt "$minmem" ] && [ "$(date +%s)" -lt "$end" ]; do sleep 5; done
+      [ "$(awk '/MemAvailable/ {print int($2/1024)}' /proc/meminfo)" -ge "$minmem" ] && got=1 && break
+    fi
+    for i in $(seq 1 "$slots"); do eval "exec $((20+i))>&-"; done; exec 8>&-
+    echo "$(date -u +%FT%T) pid $$ exclusive: gate held ${HEAVY_EXCL_MAX_WAIT:-300}s without all slots/memory ($n/$slots), backing off: $*" >> "$dir/exclusive.log"
+    sleep "${HEAVY_EXCL_BACKOFF:-120}"
+  done
+  while [ "$(awk '/MemAvailable/ {print int($2/1024)}' /proc/meminfo)" -lt "$minmem" ]; do sleep 5; done   # (patience path)
+  export HEAVY_HELD=1
+  fds=""; for i in $(seq 1 "$slots"); do fds="$fds $((20+i))>&-"; done
+  eval "nice -n 5 \"\$@\" 8>&- $fds"; exit $?
+fi
+while :; do
+  exec 8>"$dir/gate"; flock -s 8; exec 8>&-   # wait while an exclusive job holds/awaits the machine
+  # head-of-queue: hold the queue lock while polling (and sleeping), so newly arriving short jobs can't
+  # grab a freed slot ahead of older waiters (starvation seen 2026-10-21: cargo build waited >15 min)
+  exec 7>"$dir/queue"; flock 7
+  for i in $(seq 1 "$slots"); do
+    exec 9>"$dir/slot$i"
+    if flock -n 9; then
+      exec 7>&-
+      while [ "$(awk '/MemAvailable/ {print int($2/1024)}' /proc/meminfo)" -lt "$minmem" ]; do sleep 5; done
+      export HEAVY_HELD=1
+      nice -n 5 "$@" 9>&-; rc=$?   # child must not inherit the lock fd (daemons like VBCSCompiler would keep the slot)
+      exit $rc
+    fi
+    exec 9>&-
+  done
+  sleep 2
+done
